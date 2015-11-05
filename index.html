@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Code Game</title>
+	<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body class="grey lighten-2">
+
+	<header style="margin-bottom:35px;">
+		<nav class="grey">
+			<div class="container">
+				<div class="nav-wrapper">
+					<a href="#!" class="brand-logo right">Logo</a>
+					<ul id="nav-mobile" class="left hide-on-med-and-down">
+						<li><a href="#!">o</a></li>
+						<li><a href="#!">m</a></li>
+						<li><a href="#!">g</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<div class="row">
+		<!-- info -->
+		<div class="col s2 white z-depth-1" id="info_id">
+			&nbsp;
+			<div class="row">
+				<div class="col s12">
+					<div class="center-align">
+						<button type="button" class="btn-large waves-effect waves-light" id="play">
+							<i class="material-icons medium">play_arrow</i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- content -->
+		<div class="col s6 white z-depth-1" style="height:600px; padding:0" id="content_id" >&nbsp;</div>
+
+		<!-- code -->
+		<div class="col s2 white z-depth-1" id="code_id" style="height:600px">
+			&nbsp;
+		</div>
+
+		<!-- block -->
+		<div class="col s2 white z-depth-1" id="block_id">
+			<div class="card white">
+				<div class="card-content">
+					
+				</div>
+			</div>
+			<div class="card grey lighten-3 mLeft" draggable="true">
+				<div class="card-content center-align">MOVE LEFT</div>
+			</div>
+			<div class="card grey lighten-3 mRight" draggable="true">
+				<div class="card-content center-align">MOVE RIGHT</div>
+			</div>
+		</div>
+	</div>
+
+	
+</body>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/phaser/phaser.js"></script>
+<script type="text/javascript" src="js/game/app.js"></script>
+</html>
