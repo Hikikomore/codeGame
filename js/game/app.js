@@ -17,7 +17,7 @@ var blocks = {
 	init: function() {
 		[].forEach.call($blocks, function(block) {
 			block.addEventListener('dragstart', blocks.dragStart, false);
-			block.addEventListener('dragleave', blocks.dragLeave, false);
+			block.addEventListener('dragover', blocks.dragOver, false);
 			block.addEventListener('dragend', blocks.dragEnd, false);
 		});
 	},
@@ -31,29 +31,7 @@ var blocks = {
 		e.dataTransfer.setData('text/html', this.innerHTML);
 	},
 
-	dragLeave: function(e) {
-		//console.log('dragleave');
-	},
-
-	dragEnd: function(e) {
-		this.style.opacity = 1;
-	}
-
-
-
-};
-
-var code = {
-
-	init: function() {
-		$code.addEventListener('drop', code.drop, false);
-		$code.addEventListener('dragenter', code.dragEnter, false);
-		$code.addEventListener('dragover', code.dragOver, false);
-		$code.addEventListener('dragleave', code.dragLeave, false);
-	},
-
 	dragOver: function(e) {
-//		console.log('dragover code');
 		if(e.preventDefault) {
 			e.preventDefault();
 		}
@@ -61,29 +39,50 @@ var code = {
 		return false;
 	},
 
-	dragLeave: function(e) {
+	dragEnd: function(e) {
+		this.style.opacity = 1;
+	}
+};
 
+var code = {
+
+	elm: null,
+
+	init: function() {
+		$code.addEventListener('drop', code.drop, false);
+		$code.addEventListener('dragover', code.dragOver, false);
 	},
 
+	dragOver: function(e) {
+		if(e.preventDefault) {
+			e.preventDefault();
+		}
+
+		return false;
+	},
 	drop: function(e) {
 		if(e.stopPropagation) {
 			e.stopPropagation();
 		}
 
+		e.preventDefault();
 
 		var $copyElem = $elem.cloneNode(true);
 		$copyElem.style.opacity = 1;
 		this.appendChild($copyElem);
-		
+		var $codeChild = this.children;
+		[].forEach.call($codeChild, function($child) {
+			$child.addEventListener('dblclick', code.removeElem, false);
 
+		});
+		
 		return false;
 	},
 
-	dragEnter: function(e) {
-
+	removeElem: function(e) {
+		var $el = e.target.parentNode;
+		$el.outerHTML = '';
 	}
-
-
 };
 
 var pGame = {
@@ -110,34 +109,34 @@ var pGame = {
 pGame.animationStopped = function (sprite, animation) {
 
 	animation.stop();
-	sprite.frame = 4;
+	sprite.frame = 0;
 	this.isMoving = false;
-	console.log('end move');
 	Game.nextInstruction();
 
-}
-
+};
 
 pGame.preload = function() {
 	
-	this.load.spritesheet('dude', 'js/phaser/assets/dude.png', 32, 48);
+	this.load.spritesheet('dude', 'assets/characters/1.png', 64/4, 112/7);
 
 };
 
 pGame.create = function() {
 	
-	pGame.dude = this.add.sprite(200, 200, 'dude', 4);
+	pGame.dude = this.add.sprite(200, 200, 'dude', 0);
+	pGame.dude.scale.setTo(2, 2);
 	this.stage.backgroundColor = 0xffffff;
 
-	pGame.dude.animations.add('stand', 4, 60);
-	pGame.dude.animations.add('mLeft', [0,1,2,3], 60);
-	pGame.dude.animations.add('mRight', [5,6,7,8], 60);
+	pGame.dude.animations.add('stand', 0, 60);
+	pGame.dude.animations.add('mLeft', [2,6,10,14], 60);
+	pGame.dude.animations.add('mRight', [3,7,11,15], 60);
+	pGame.dude.animations.add('mUp', [1,5,9,13], 60);
+	pGame.dude.animations.add('mDown', [0,4,8,12], 60);
 
 
 };
 
 pGame.moveLeft = function() {
-	console.log('moveLeft');
 	while(!this.isMoving) {
 		this.isMoving = true;	
 		pGame.anim = this.dude.animations.play('mLeft', 4);
@@ -147,10 +146,25 @@ pGame.moveLeft = function() {
 }
 
 pGame.moveRight = function() {
-	console.log('move right');
 	while(!this.isMoving) {
 		this.isMoving = true;	
 		pGame.anim = this.dude.animations.play('mRight', 4);
+		pGame.anim.onComplete.add(pGame.animationStopped, this);
+	}
+}
+
+pGame.moveUp = function() {
+	while(!this.isMoving) {
+		this.isMoving = true;	
+		pGame.anim = this.dude.animations.play('mUp', 4);
+		pGame.anim.onComplete.add(pGame.animationStopped, this);
+	}
+}
+
+pGame.moveDown = function() {
+	while(!this.isMoving) {
+		this.isMoving = true;	
+		pGame.anim = this.dude.animations.play('mDown', 4);
 		pGame.anim.onComplete.add(pGame.animationStopped, this);
 	}
 }
@@ -168,6 +182,14 @@ pGame.update = function() {
 		if(pGame.anim.name === 'mRight') {
 			pGame.dude.x += 1;
 		}
+
+		if(pGame.anim.name === 'mUp') {
+			pGame.dude.y -= 1;
+		}
+
+		if(pGame.anim.name === 'mDown') {
+			pGame.dude.y += 1;
+		}
 	}
 	
 }
@@ -177,9 +199,7 @@ var Game = {
 	run: function() {
 		blocks.init();
 		code.init();
-
-		WIDTH = $content.offsetWidth;
-
+		WIDTH = $content.offsetWidth - 20;
 		pGame.init();
 
 		$play.addEventListener('click', Game.play, false);
@@ -188,7 +208,9 @@ var Game = {
 
 	play: function(e) {
 		var $codeChildren = $code.children;
+
 		instructions = [];
+		instructionIndex = 0;
 		[].forEach.call($codeChildren, function($child) {
 			instructions.push($child.children[0].innerHTML);
 		});
@@ -208,6 +230,14 @@ var Game = {
 				pGame.moveRight();
 				break;
 
+			case 'MOVE UP':
+				pGame.moveUp();
+				break;
+
+			case 'MOVE DOWN':
+				pGame.moveDown();
+				break;
+
 		}
 	},
 
@@ -220,10 +250,3 @@ var Game = {
 }
 
 Game.run();
-
-
-
-
-
-
-
